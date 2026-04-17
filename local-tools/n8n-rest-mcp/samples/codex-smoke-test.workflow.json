@@ -1,0 +1,72 @@
+{
+  "name": "codex-smoke-test",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "Benign webhook smoke test for the Codex n8n REST wrapper.",
+        "height": 180,
+        "width": 360
+      },
+      "id": "fef0c66e-f44b-417a-b987-18d49a8c86eb",
+      "name": "Codex Smoke Test Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "codex-smoke-test",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "1b1eb947-fadb-4bf1-a932-f92bcb13c54b",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "webhookId": "596f83be-4e44-417d-8850-23cf6fdb88d8",
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{(() => {\n  const payload = $json.body ?? $json;\n  return {\n    ok: true,\n    message: 'codex smoke test',\n    received_input: payload,\n    timestamp: new Date().toISOString()\n  };\n})()}}",
+        "options": {}
+      },
+      "id": "5cddd70f-500c-4331-a510-a880db7544e1",
+      "name": "Build Smoke Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        260,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Smoke Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "tags": []
+}

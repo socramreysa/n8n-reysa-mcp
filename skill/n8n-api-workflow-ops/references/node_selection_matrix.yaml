@@ -1,0 +1,196 @@
+version: 1
+last_revalidated: "2026-04-15"
+notes:
+  - "Use this matrix before reopening live n8n docs."
+  - "Preferred nodes are ordered from strongest default to acceptable fallback."
+  - "Code is only acceptable as the last justified option when the intent isn't covered cleanly by native nodes."
+intents:
+  - intent: payload_normalization
+    preferred_nodes:
+      - "Edit Fields (Set)"
+    allowed_fallbacks:
+      - "Short expressions in downstream parameters"
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Normalize webhook or API payloads early so downstream nodes work with a stable, smaller schema."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.set/"
+      - "https://docs.n8n.io/data/expressions-for-transformation/"
+
+  - intent: binary_branching
+    preferred_nodes:
+      - "If"
+    allowed_fallbacks:
+      - "Filter"
+      - "Switch"
+    avoid_nodes:
+      - "Code"
+      - "If ladder"
+    why: "Use If for a simple yes/no split; avoid custom branching logic for boolean decisions."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.if/"
+      - "https://docs.n8n.io/flow-logic/splitting/"
+
+  - intent: multi_branch_routing
+    preferred_nodes:
+      - "Switch"
+    allowed_fallbacks:
+      - "If (only when there are exactly two outputs)"
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "If ladder"
+      - "Code"
+    why: "Explicit multi-route dispatch is clearer and easier to debug with Switch than with chained If nodes."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.switch/"
+      - "https://docs.n8n.io/flow-logic/splitting/"
+
+  - intent: filtering
+    preferred_nodes:
+      - "Filter"
+    allowed_fallbacks:
+      - "If"
+      - "Expression-level .filter() for array fields only"
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Use Filter to keep or discard items without turning selection logic into control flow."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.filter/"
+      - "https://docs.n8n.io/data/data-filtering/"
+
+  - intent: dedupe
+    preferred_nodes:
+      - "Remove Duplicates"
+    allowed_fallbacks:
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Deduplication intent should be visible directly in the canvas instead of hidden inside custom JavaScript."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.removeduplicates/"
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.removeduplicates/templates-and-examples/"
+
+  - intent: sorting
+    preferred_nodes:
+      - "Sort"
+    allowed_fallbacks:
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Standard sort behavior belongs in the Sort node, not in handwritten comparators."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.sort/"
+
+  - intent: grouping_aggregation
+    preferred_nodes:
+      - "Aggregate"
+      - "Summarize"
+      - "Merge"
+    allowed_fallbacks:
+      - "Edit Fields (Set)"
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Grouping and summarization are easier to inspect when expressed with purpose-built data nodes."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.aggregate/"
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.summarize/"
+      - "https://docs.n8n.io/data/"
+
+  - intent: split_arrays_into_items
+    preferred_nodes:
+      - "Split Out"
+    allowed_fallbacks:
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Exploding arrays into items should stay explicit in the graph."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.splitout/"
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.itemlists/"
+
+  - intent: per_item_looping
+    preferred_nodes:
+      - "Loop Over Items"
+    allowed_fallbacks:
+      - "Native item processing without an explicit loop when the downstream nodes already iterate automatically"
+      - "If plus loop back edge only when implementing a true loop condition"
+    avoid_nodes:
+      - "Code"
+    why: "Use Loop Over Items only for explicit batching or node exceptions; otherwise rely on n8n's normal item processing."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.splitinbatches/"
+      - "https://docs.n8n.io/flow-logic/looping/"
+
+  - intent: external_api_call
+    preferred_nodes:
+      - "Built-in app node for the target service"
+      - "HTTP Request"
+    allowed_fallbacks:
+      - "HTTP Request with predefined credentials"
+      - "Code (last resort only, not for the HTTP call itself)"
+    avoid_nodes:
+      - "Code"
+    why: "HTTP calls should stay in built-in nodes or HTTP Request so auth, payload, pagination, and retries remain visible."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/"
+      - "https://docs.n8n.io/code/cookbook/http-node/"
+
+  - intent: db_lookup
+    preferred_nodes:
+      - "Postgres"
+    allowed_fallbacks:
+      - "HTTP Request"
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Use the Postgres node for selects and queries so credentials, mapping, and batching remain native to n8n."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.postgres/"
+
+  - intent: notification_send
+    preferred_nodes:
+      - "Telegram"
+      - "Slack"
+    allowed_fallbacks:
+      - "HTTP Request"
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Prefer native notification nodes when they exist so auth and message operations stay explicit."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.telegram/"
+      - "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.slack/"
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/"
+
+  - intent: sheet_row_write
+    preferred_nodes:
+      - "Google Sheets"
+    allowed_fallbacks:
+      - "HTTP Request"
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Use Google Sheets for row appends and updates before falling back to raw API calls."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.googlesheets/"
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/"
+
+  - intent: webhook_response_shaping
+    preferred_nodes:
+      - "Edit Fields (Set)"
+      - "Respond to Webhook"
+      - "Aggregate"
+    allowed_fallbacks:
+      - "Webhook with Respond = When Last Node Finishes"
+      - "Code (last resort only)"
+    avoid_nodes:
+      - "Code"
+    why: "Keep webhook responses explicit and visual, especially when shaping or aggregating output for the caller."
+    official_doc_links:
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/"
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.respondtowebhook/"
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.set/"
+      - "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.aggregate/"
