@@ -4,7 +4,7 @@ Codex skill + local MCP wrapper for the `n8n` public REST API.
 
 This repo packages:
 
-- the `n8n-api-workflow-ops` skill
+- the `n8n-ops` skill
 - the local `n8n_rest` MCP wrapper
 - a one-command installer for `~/.codex`
 
@@ -14,7 +14,7 @@ It is designed for API-first `n8n` work from any project folder, without using t
 
 The installer writes only to your Codex home:
 
-- `~/.codex/skills/n8n-api-workflow-ops`
+- `~/.codex/skills/n8n-ops`
 - `~/.codex/local-tools/n8n-rest-mcp`
 - `~/.codex/config.toml` if the `n8n_rest` MCP block is missing
 - `~/.codex/local-tools/n8n-rest-mcp/.env`
@@ -50,7 +50,7 @@ Copy the packaged directories into your Codex home:
 
 ```bash
 mkdir -p ~/.codex/skills ~/.codex/local-tools
-cp -R ./skill/n8n-api-workflow-ops ~/.codex/skills/
+cp -R ./skill/n8n-ops ~/.codex/skills/
 cp -R ./local-tools/n8n-rest-mcp ~/.codex/local-tools/
 ```
 
@@ -85,11 +85,11 @@ Required variables:
 ## Verify the Install
 
 1. Open a new Codex session.
-2. Ask Codex to use the `n8n-api-workflow-ops` skill.
+2. Ask Codex to use the `n8n-ops` skill.
 3. Run a simple check such as:
 
 ```text
-Use $n8n-api-workflow-ops and run check_connection against my n8n instance.
+Use $n8n-ops and run check_connection against my n8n instance.
 ```
 
 If the wrapper can reach your instance, Codex should report the API base URL and a workflow count hint.
@@ -117,7 +117,7 @@ The packaged `n8n_rest` wrapper exposes tools for:
 ## Repo Layout
 
 ```text
-skill/n8n-api-workflow-ops/
+skill/n8n-ops/
 local-tools/n8n-rest-mcp/
 install/install.sh
 README.md

@@ -141,5 +141,5 @@ Import [`samples/codex-smoke-test.workflow.json`](/Users/marcos/.codex/local-too
 - `node --test ./test/index.test.mjs`
 - `node dist/audit-workflow-style.js --file ./samples/codex-smoke-test.workflow.json`
 - `node dist/index.js`
-- `python3 ~/.codex/skills/n8n-api-workflow-ops/scripts/check_swagger_contract.py`
-- `python3 ~/.codex/skills/n8n-api-workflow-ops/scripts/audit_rest_only.py`
+- `python3 ~/.codex/skills/n8n-ops/scripts/check_swagger_contract.py`
+- `python3 ~/.codex/skills/n8n-ops/scripts/audit_rest_only.py`

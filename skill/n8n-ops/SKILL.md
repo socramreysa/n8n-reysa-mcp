@@ -1,5 +1,5 @@
 ---
-name: n8n-api-workflow-ops
+name: n8n-ops
 description: Use the global n8n_rest MCP server to inspect, edit, execute, and debug n8n workflows through the public REST API. Use when the user wants to review workflows, create or update them, trigger webhook-based tests, inspect executions, or read node-level logs from any project folder.
 ---
 

@@ -1,6 +1,6 @@
 # Style Audit Rules
 
-Static style audit rules for `n8n-api-workflow-ops`.
+Static style audit rules for `n8n-ops`.
 
 - Last revalidated: `2026-04-15`
 - Scope: static workflow JSON only

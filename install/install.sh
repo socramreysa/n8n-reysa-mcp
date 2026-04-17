@@ -3,9 +3,9 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
-SKILL_SRC="$REPO_ROOT/skill/n8n-api-workflow-ops"
+SKILL_SRC="$REPO_ROOT/skill/n8n-ops"
 WRAPPER_SRC="$REPO_ROOT/local-tools/n8n-rest-mcp"
-SKILL_DEST="$CODEX_HOME/skills/n8n-api-workflow-ops"
+SKILL_DEST="$CODEX_HOME/skills/n8n-ops"
 WRAPPER_DEST="$CODEX_HOME/local-tools/n8n-rest-mcp"
 CONFIG_FILE="$CODEX_HOME/config.toml"
 WRAPPER_ENV_FILE="$WRAPPER_DEST/.env"
@@ -57,5 +57,5 @@ Configure this file before opening Codex:
 Next steps:
 1. Edit $WRAPPER_ENV_FILE with your n8n values.
 2. Open a new Codex session.
-3. Use the n8n-api-workflow-ops skill and run check_connection.
+3. Use the n8n-ops skill and run check_connection.
 EOF

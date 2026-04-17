@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path.home() / ".codex"
 TARGETS = [
     ROOT / "config.toml",
-    ROOT / "skills" / "n8n-api-workflow-ops",
+    ROOT / "skills" / "n8n-ops",
     ROOT / "local-tools" / "n8n-rest-mcp",
 ]
 TEXT_EXTENSIONS = {
@@ -25,7 +25,7 @@ TEXT_EXTENSIONS = {
     ".yml",
 }
 SKIP_FILES = {
-    ROOT / "skills" / "n8n-api-workflow-ops" / "scripts" / "audit_rest_only.py",
+    ROOT / "skills" / "n8n-ops" / "scripts" / "audit_rest_only.py",
     ROOT / "local-tools" / "n8n-rest-mcp" / "src" / "index.ts",
     ROOT / "local-tools" / "n8n-rest-mcp" / "dist" / "index.js",
     ROOT / "local-tools" / "n8n-rest-mcp" / "test" / "index.test.mjs",
