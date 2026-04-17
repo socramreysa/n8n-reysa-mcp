@@ -10,6 +10,20 @@ The wrapper follows the live Swagger contract exposed by the target instance at:
 
 - `$N8N_BASE_URL/api/v1/docs/`
 
+## Configuration
+
+The packaged repo ships with:
+
+- `.env.example` for local credentials
+- `bin/start.sh` as the Codex MCP entrypoint
+
+The recommended installed layout is:
+
+- `~/.codex/local-tools/n8n-rest-mcp/.env`
+- `~/.codex/local-tools/n8n-rest-mcp/bin/start.sh`
+
+`bin/start.sh` loads `.env` before starting the stdio MCP server, so users do not need shell `export` statements for normal Codex use.
+
 ## Env vars
 
 - `N8N_BASE_URL`: base URL for the target n8n instance, for example `https://your-n8n-host.example.com`

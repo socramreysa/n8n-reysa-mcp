@@ -17,6 +17,7 @@ The installer writes only to your Codex home:
 - `~/.codex/skills/n8n-api-workflow-ops`
 - `~/.codex/local-tools/n8n-rest-mcp`
 - `~/.codex/config.toml` if the `n8n_rest` MCP block is missing
+- `~/.codex/local-tools/n8n-rest-mcp/.env`
 
 It does not modify your current project.
 
@@ -35,13 +36,10 @@ cd n8n-reysa-mcp
 ./install/install.sh
 ```
 
-Then export the required variables in your shell profile:
+Then edit the generated env file:
 
 ```bash
-export N8N_BASE_URL="https://your-n8n-host.example.com"
-export N8N_API_KEY="your-n8n-api-key"
-# optional
-export N8N_WEBHOOK_BASE_URL="https://your-n8n-host.example.com"
+vi ~/.codex/local-tools/n8n-rest-mcp/.env
 ```
 
 Open a new Codex session after installation.
@@ -60,23 +58,27 @@ Add this block to `~/.codex/config.toml` if it is not already present:
 
 ```toml
 [mcp_servers.n8n_rest]
-command = "/absolute/path/to/node"
-args = ["/absolute/path/to/.codex/local-tools/n8n-rest-mcp/dist/index.js"]
+command = "/absolute/path/to/.codex/local-tools/n8n-rest-mcp/bin/start.sh"
 ```
 
 On most systems, a good default looks like:
 
 ```toml
 [mcp_servers.n8n_rest]
-command = "/usr/bin/env"
-args = ["node", "/Users/your-user/.codex/local-tools/n8n-rest-mcp/dist/index.js"]
+command = "/Users/your-user/.codex/local-tools/n8n-rest-mcp/bin/start.sh"
 ```
 
-## Required Environment Variables
+Create `~/.codex/local-tools/n8n-rest-mcp/.env` from the bundled example:
 
-- `N8N_BASE_URL`: base URL of the target `n8n` instance
-- `N8N_API_KEY`: `n8n` public API key
-- `N8N_WEBHOOK_BASE_URL`: optional webhook host override
+```bash
+cp ~/.codex/local-tools/n8n-rest-mcp/.env.example ~/.codex/local-tools/n8n-rest-mcp/.env
+```
+
+Required variables:
+
+- `N8N_BASE_URL`
+- `N8N_API_KEY`
+- `N8N_WEBHOOK_BASE_URL` optional
 
 `N8N_WEBHOOK_BASE_URL` falls back to `N8N_BASE_URL` when omitted.
 
@@ -110,6 +112,7 @@ The packaged `n8n_rest` wrapper exposes tools for:
 - this package does not use the native `n8n` MCP transport
 - if network resolution fails, the wrapper reports transport details such as `code`, `hostname`, and `syscall`
 - some `n8n` instances may require re-publishing workflows after API edits to ensure production webhooks stay registered
+- secrets live in the local `.env` file under `~/.codex/local-tools/n8n-rest-mcp/.env`, not in git
 
 ## Repo Layout
 

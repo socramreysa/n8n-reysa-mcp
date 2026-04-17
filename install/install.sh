@@ -8,6 +8,9 @@ WRAPPER_SRC="$REPO_ROOT/local-tools/n8n-rest-mcp"
 SKILL_DEST="$CODEX_HOME/skills/n8n-api-workflow-ops"
 WRAPPER_DEST="$CODEX_HOME/local-tools/n8n-rest-mcp"
 CONFIG_FILE="$CODEX_HOME/config.toml"
+WRAPPER_ENV_FILE="$WRAPPER_DEST/.env"
+WRAPPER_ENV_EXAMPLE="$WRAPPER_DEST/.env.example"
+WRAPPER_LAUNCHER="$WRAPPER_DEST/bin/start.sh"
 
 if ! command -v node >/dev/null 2>&1; then
   echo "Error: node is required but was not found in PATH." >&2
@@ -18,12 +21,13 @@ mkdir -p "$CODEX_HOME/skills" "$CODEX_HOME/local-tools"
 rm -rf "$SKILL_DEST" "$WRAPPER_DEST"
 cp -R "$SKILL_SRC" "$SKILL_DEST"
 cp -R "$WRAPPER_SRC" "$WRAPPER_DEST"
-
-NODE_PATH="$(command -v node)"
+chmod +x "$WRAPPER_LAUNCHER"
+if [ ! -f "$WRAPPER_ENV_FILE" ] && [ -f "$WRAPPER_ENV_EXAMPLE" ]; then
+  cp "$WRAPPER_ENV_EXAMPLE" "$WRAPPER_ENV_FILE"
+fi
 MCP_BLOCK="$(cat <<EOF
 [mcp_servers.n8n_rest]
-command = "$NODE_PATH"
-args = ["$WRAPPER_DEST/dist/index.js"]
+command = "$WRAPPER_LAUNCHER"
 EOF
 )"
 
@@ -45,14 +49,13 @@ Installed:
 
 Config:
 - $CONFIG_FILE ($CONFIG_STATUS)
+- $WRAPPER_ENV_FILE
 
-Required environment variables:
-- N8N_BASE_URL
-- N8N_API_KEY
-- N8N_WEBHOOK_BASE_URL (optional)
+Configure this file before opening Codex:
+- $WRAPPER_ENV_FILE
 
 Next steps:
-1. Export the environment variables in your shell profile.
+1. Edit $WRAPPER_ENV_FILE with your n8n values.
 2. Open a new Codex session.
 3. Use the n8n-api-workflow-ops skill and run check_connection.
 EOF

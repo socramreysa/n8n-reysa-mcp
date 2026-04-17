@@ -4,3 +4,4 @@
 *.swp
 *.swo
 node_modules/
+local-tools/n8n-rest-mcp/.env
