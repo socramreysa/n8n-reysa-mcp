@@ -1,7 +1,7 @@
 interface:
   display_name: "n8n API Workflow Ops"
   short_description: "Inspect and build idiomatic n8n workflows"
-  default_prompt: "Use $n8n-ops to inspect, edit, execute, or debug an n8n workflow using n8n_rest and preferring native n8n nodes over Code."
+  default_prompt: "Use $n8n-ops and only the local n8n_rest MCP tools. Start with check_connection, do not use curl or external HTTP paths, and prefer native n8n nodes over Code."
 
 dependencies:
   tools:

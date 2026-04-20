@@ -36,10 +36,12 @@ Do not use:
 - `curl`
 - shell HTTP clients
 - direct browser or web fetches against `n8n`
+- Swagger as an execution path
+- any external connection path or ad hoc transport to `n8n`
 
 for any of the supported operations above.
 
-If the user asks for something not covered by `n8n_rest`, say that the wrapper lacks that capability and extend the wrapper or the skill. Do not bypass the wrapper with ad hoc HTTP calls.
+If the user asks for something not covered by `n8n_rest`, say that the wrapper lacks that capability and stop there. Extend the wrapper or the skill if needed, but do not bypass `n8n_rest` with ad hoc HTTP calls or any other connection path.
 
 ## Load only what is needed
 
@@ -131,12 +133,13 @@ If the intent is covered by the matrix, stay inside the local references. Only r
 
 ## Start sequence
 
-Always start with:
+For any workflow review, edit, execution, or debugging task, this sequence is mandatory:
 
 1. `check_connection()`
 2. `list_workflows()` or `get_workflow()` depending on whether the workflow ID is already known
 
 If the connection fails, surface the normalized error kind: `config`, `auth`, `not-found`, `rate-limit`, or `upstream-error`.
+Do not switch to another connection method because of a failed first call. Diagnose within `n8n_rest` first.
 
 ## Review flow
 
@@ -191,6 +194,20 @@ After every workflow edit or creation, perform a mandatory style review before y
 
 If a `Code` node remains after review, explicitly explain why it stayed and why the built-in alternatives were not good enough.
 
+## Fallback policy
+
+If `n8n_rest` fails or lacks a capability:
+
+1. do not reach for `curl`, browser access, direct fetches, or native `n8n` MCP
+2. report whether the problem is:
+   - missing capability in `n8n_rest`
+   - `config`
+   - `auth`
+   - `upstream-error`
+3. only continue once the user explicitly accepts a wrapper extension or another implementation step
+
+Never silently switch transport.
+
 ## Execution flow
 
 Execution in this integration is webhook-only.
@@ -223,3 +240,5 @@ Assume node-level logs come from `includeData=true` on the execution detail endp
 - Do not use delete operations in this workflow
 - Prefer the bundled references and drift script over re-reading Swagger for routine tasks
 - Prefer built-in app nodes and visual core nodes over `Code`
+- For supported operations, stay inside `n8n_rest` even when troubleshooting
+- In the final answer for `n8n` tasks, explicitly name the `n8n_rest` tools used
