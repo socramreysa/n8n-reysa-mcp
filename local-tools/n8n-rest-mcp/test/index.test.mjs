@@ -95,6 +95,9 @@ test('list_workflows forwards query params and auth header', async () => {
     'https://example.test/api/v1/workflows?active=true&tags=smoke%2Capi&name=codex&limit=10&cursor=next-1'
   )
   assert.equal(seenInit.headers['X-N8N-API-KEY'], 'secret-key')
+  assert.equal(seenInit.headers['x-codex-source'], 'codex')
+  assert.equal(seenInit.headers['x-codex-tool'], 'n8n_rest')
+  assert.equal(seenInit.headers['x-codex-skill'], 'n8n-ops')
   assert.deepEqual(result.items, [{ id: 'wf_1', name: 'codex-smoke-test' }])
   assert.equal(result.nextCursor, 'next-2')
 })
@@ -552,9 +555,12 @@ test('trigger_workflow_webhook builds the documented webhook URL shape and prese
           })
         }
 
-        if (String(url) === 'https://hooks.example.test/webhook-test/codex-smoke-test?foo=bar') {
+        if (String(url) === 'https://hooks.example.test/webhook-test/codex-smoke-test?foo=bar&source=codex') {
           assert.equal(init.method, 'POST')
           assert.equal(init.headers['x-test'], '1')
+          assert.equal(init.headers['x-codex-source'], 'codex')
+          assert.equal(init.headers['x-codex-tool'], 'n8n_rest')
+          assert.equal(init.headers['x-codex-skill'], 'n8n-ops')
           assert.equal(init.headers['content-type'], 'application/json')
           assert.deepEqual(JSON.parse(init.body), { hello: 'world' })
           return mockResponse({
@@ -569,10 +575,95 @@ test('trigger_workflow_webhook builds the documented webhook URL shape and prese
   )
 
   assert.equal(result.ok, true)
-  assert.equal(result.requestUrl, 'https://hooks.example.test/webhook-test/codex-smoke-test?foo=bar')
+  assert.equal(result.requestUrl, 'https://hooks.example.test/webhook-test/codex-smoke-test?foo=bar&source=codex')
   assert.equal(result.response.status, 200)
   assert.deepEqual(result.response.body, { ok: true, echoed: 'yes' })
   assert.equal(seen.length, 2)
+})
+
+test('trigger_workflow_webhook preserves explicit marker overrides from the caller', async () => {
+  const result = await lib.handleToolInvocation(
+    'trigger_workflow_webhook',
+    {
+      workflowId: 'wf_1',
+      mode: 'production',
+      headers: {
+        'X-Codex-Source': 'manual-override',
+      },
+      query: {
+        source: 'manual-override',
+      },
+    },
+    {
+      env: {
+        N8N_BASE_URL: 'https://example.test',
+        N8N_API_KEY: 'secret-key',
+      },
+      fetchImpl: async (url, init) => {
+        if (String(url) === 'https://example.test/api/v1/workflows/wf_1') {
+          return mockResponse({
+            body: {
+              id: 'wf_1',
+              name: 'Webhook Flow',
+              nodes: [
+                {
+                  name: 'Webhook',
+                  type: 'n8n-nodes-base.webhook',
+                  parameters: {
+                    path: 'codex-smoke-test',
+                    httpMethod: 'POST',
+                  },
+                },
+              ],
+              connections: {},
+            },
+          })
+        }
+
+        if (String(url) === 'https://example.test/webhook/codex-smoke-test?source=manual-override') {
+          assert.equal(init.headers['x-codex-source'], 'manual-override')
+          assert.equal(init.headers['x-codex-tool'], 'n8n_rest')
+          assert.equal(init.headers['x-codex-skill'], 'n8n-ops')
+          return mockResponse({
+            body: { ok: true },
+          })
+        }
+
+        throw new Error(`Unexpected request: ${init.method} ${url}`)
+      },
+    }
+  )
+
+  assert.equal(result.ok, true)
+})
+
+test('codex markers can be disabled through env', async () => {
+  let seenInit = null
+
+  await lib.handleToolInvocation(
+    'list_workflows',
+    { limit: 1 },
+    {
+      env: {
+        N8N_BASE_URL: 'https://example.test',
+        N8N_API_KEY: 'secret-key',
+        N8N_CODEX_MARKERS_ENABLED: 'false',
+      },
+      fetchImpl: async (_url, init) => {
+        seenInit = init
+        return mockResponse({
+          body: {
+            data: [],
+            total: 0,
+          },
+        })
+      },
+    }
+  )
+
+  assert.equal(seenInit.headers['x-codex-source'], undefined)
+  assert.equal(seenInit.headers['x-codex-tool'], undefined)
+  assert.equal(seenInit.headers['x-codex-skill'], undefined)
 })
 
 test('trigger_workflow_webhook returns production 404 hints that explain common registration failures', async () => {
@@ -610,12 +701,18 @@ test('trigger_workflow_webhook returns production 404 hints that explain common 
           })
         }
 
-        if (String(url) === 'https://example.test/webhook/codex-smoke-test') {
-          return mockResponse({
-            ok: false,
-            status: 404,
-            body: { message: 'not found' },
-          })
+        {
+          const webhookUrl = new URL(String(url))
+          if (
+            `${webhookUrl.origin}${webhookUrl.pathname}` ===
+            'https://example.test/webhook/codex-smoke-test'
+          ) {
+            return mockResponse({
+              ok: false,
+              status: 404,
+              body: { message: 'not found' },
+            })
+          }
         }
 
         throw new Error(`Unexpected request: ${init.method} ${url}`)

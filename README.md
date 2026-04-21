@@ -94,6 +94,15 @@ Use $n8n-ops and run check_connection against my n8n instance.
 
 If the wrapper can reach your instance, Codex should report the API base URL and a workflow count hint.
 
+## Optimal operation framework
+
+The `n8n-ops` skill includes an optimal operation framework (operational excellence checklist) that stays inside the `n8n_rest` tool path (no curl / no browser fetch).
+
+- In this repo: `skill/n8n-ops/references/optimal_operation_framework.md`
+- After install: `~/.codex/skills/n8n-ops/references/optimal_operation_framework.md`
+
+Use it as the default recommendation when creating/editing workflows and when deciding whether it is safe to run `trigger_workflow_webhook`.
+
 ## What the Wrapper Can Do
 
 The packaged `n8n_rest` wrapper exposes tools for:
@@ -118,6 +127,7 @@ The packaged `n8n_rest` wrapper exposes tools for:
 
 ```text
 skill/n8n-ops/
+skill/n8n-ops/references/optimal_operation_framework.md
 local-tools/n8n-rest-mcp/
 install/install.sh
 README.md

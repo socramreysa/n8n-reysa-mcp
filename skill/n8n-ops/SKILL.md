@@ -63,6 +63,10 @@ Use the bundled references first. They are the default working contract for this
   [references/webhook_execution.md](references/webhook_execution.md)
 - Execution inspection, retries, and node-level logs:
   [references/execution_debugging.md](references/execution_debugging.md)
+- Agent workflow loop for create/edit/test cycles:
+  [references/execution_loop.md](references/execution_loop.md)
+- Optimal operation framework (operational excellence: safety, validation, evidence):
+  [references/optimal_operation_framework.md](references/optimal_operation_framework.md)
 - Production 404s, webhook registration caveats, and known drift risks:
   [references/known_issues.md](references/known_issues.md)
 - Canonical node patterns and anti-patterns for workflow design:
@@ -85,6 +89,19 @@ Trust the live Swagger over the local references if they disagree, and note the 
 Use the Swagger only as documentation, not as an execution path.
 
 ## Authoring policy
+
+For any workflow creation, structural edit, or substantial rework, this loop is mandatory:
+
+1. `Input`
+2. `Output`
+3. `Decide`
+4. `Build`
+5. `Audit`
+6. `Test`
+7. `Review`
+8. `Repeat`
+
+Load [references/execution_loop.md](references/execution_loop.md) before substantial create/edit work.
 
 When an authoring task is covered by the bundled matrix, do not reopen the live docs. Use the local matrix and catalogs first.
 
@@ -116,7 +133,7 @@ Branching rules:
 
 ### Decision workflow
 
-For each step you add or edit:
+For each step you add or edit during `Decide`:
 
 1. load [references/node_selection_matrix.yaml](references/node_selection_matrix.yaml)
 2. map the step to one of the known intents
@@ -154,6 +171,8 @@ Prioritize findings. Call out unsafe trigger assumptions, missing webhook constr
 
 ## Edit flow
 
+Before entering `Build`, resolve `Input` and `Output` clearly enough that the workflow shape is no longer ambiguous.
+
 Use the narrowest safe write path:
 
 - small metadata changes: `update_workflow_metadata({ id, name?, settings?, tags? })`
@@ -165,6 +184,7 @@ Use the narrowest safe write path:
 
 Before editing, load:
 
+- [references/execution_loop.md](references/execution_loop.md)
 - [references/node_selection_matrix.yaml](references/node_selection_matrix.yaml)
 - [references/native_node_catalog.md](references/native_node_catalog.md)
 - [references/common_app_nodes.md](references/common_app_nodes.md)
@@ -185,7 +205,7 @@ After any webhook-affecting change, run this sequence:
 
 ## Review gate
 
-After every workflow edit or creation, perform a mandatory style review before you present the result as complete:
+After every workflow edit or creation, perform a mandatory `Audit` pass before you present the result as complete:
 
 1. `audit_workflow_style({ id })`
 2. treat `blocking: true` as a required refactor before closing
@@ -193,6 +213,12 @@ After every workflow edit or creation, perform a mandatory style review before y
 4. if the workflow still contains `Code`, explain why native nodes or `HTTP Request` were not sufficient
 
 If a `Code` node remains after review, explicitly explain why it stayed and why the built-in alternatives were not good enough.
+
+## Optimal operation framework (recommended)
+
+Use [references/optimal_operation_framework.md](references/optimal_operation_framework.md) as the default operational excellence checklist for operating and validating workflows created/edited with this skill.
+Prefer validating via `audit_workflow_style`, `list_executions`, `summarize_execution`, and `get_execution_node`.
+Only run `trigger_workflow_webhook` when execution is clearly safe and the user approves.
 
 ## Fallback policy
 
@@ -210,13 +236,19 @@ Never silently switch transport.
 
 ## Execution flow
 
-Execution in this integration is webhook-only.
+Execution in this integration is webhook-only, and `Test` is conditional.
 
 - Start with `list_workflow_webhooks({ id })`
 - Prefer `trigger_workflow_webhook({ workflowId, mode: "test", ... })`
 - Use `mode: "production"` only with explicit user intent or when the user accepts the production-side effect
 - If there are multiple Webhook nodes, require `nodeName`
 - If there is no Webhook node, say clearly that the workflow is not executable through this v1 runner
+- Only auto-run `Test` when execution is safe:
+  - benign webhook
+  - smoke-test flow
+  - preview flow
+  - explicit user-approved low-risk run
+- If execution is not clearly safe, stop after `Audit` and `Review` and say that the workflow was not auto-tested for safety reasons
 
 Use `diagnose_workflow_webhook()` whenever a production webhook returns `404` or when a workflow was recently edited through the API.
 

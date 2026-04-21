@@ -195,6 +195,39 @@ function getApiKey(env = process.env) {
   return value;
 }
 
+function codexMarkersEnabled(env = process.env) {
+  const raw = String(env.N8N_CODEX_MARKERS_ENABLED ?? 'true').trim().toLowerCase();
+  return !['0', 'false', 'no', 'off'].includes(raw);
+}
+
+function getCodexMarkerValues(env = process.env) {
+  return {
+    source: String(env.N8N_CODEX_SOURCE || 'codex').trim() || 'codex',
+    tool: String(env.N8N_CODEX_TOOL || 'n8n_rest').trim() || 'n8n_rest',
+    skill: String(env.N8N_CODEX_SKILL || 'n8n-ops').trim() || 'n8n-ops',
+  };
+}
+
+function buildCodexMarkerHeaders(env = process.env) {
+  if (!codexMarkersEnabled(env)) {
+    return {};
+  }
+  const markers = getCodexMarkerValues(env);
+  return {
+    'x-codex-source': markers.source,
+    'x-codex-tool': markers.tool,
+    'x-codex-skill': markers.skill,
+  };
+}
+
+function mergeHeaderDefaults(headers, defaults) {
+  const merged = { ...defaults };
+  for (const [key, value] of Object.entries(assertPlainObject(headers))) {
+    merged[key] = value;
+  }
+  return merged;
+}
+
 function getTransportErrorCause(error) {
   const current = error instanceof Error ? error : null;
   if (!current) {
@@ -421,6 +454,7 @@ async function requestJson(options) {
   const method = validateHttpMethod(options.method);
   const url = buildUrl(options.pathname, options.query, env);
   const apiKey = getApiKey(env);
+  const codexHeaders = buildCodexMarkerHeaders(env);
   const maxAttempts = method === 'GET' || method === 'HEAD' ? 3 : 1;
   let response;
   let attempt = 0;
@@ -435,6 +469,7 @@ async function requestJson(options) {
           Accept: JSON_CONTENT_TYPE,
           'Content-Type': JSON_CONTENT_TYPE,
           'X-N8N-API-KEY': apiKey,
+          ...codexHeaders,
           ...(options.headers || {}),
         },
         body: options.body === undefined ? undefined : JSON.stringify(options.body),
@@ -476,7 +511,10 @@ async function requestWebhook(options) {
   const env = options.env ?? process.env;
   const method = validateHttpMethod(options.method || 'POST');
   const url = new URL(options.url);
-  const headers = normalizeHeaderMap(options.headers);
+  const headers = mergeHeaderDefaults(
+    normalizeHeaderMap(options.headers),
+    buildCodexMarkerHeaders(env)
+  );
   const hasBody = options.body !== undefined && options.body !== null;
 
   if (options.query) {
@@ -492,6 +530,10 @@ async function requestWebhook(options) {
       }
       url.searchParams.set(key, String(value));
     }
+  }
+
+  if (codexMarkersEnabled(env) && !url.searchParams.has('source')) {
+    url.searchParams.set('source', getCodexMarkerValues(env).source);
   }
 
   let body = undefined;
