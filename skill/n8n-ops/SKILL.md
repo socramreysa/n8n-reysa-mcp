@@ -230,9 +230,39 @@ If `n8n_rest` fails or lacks a capability:
    - `config`
    - `auth`
    - `upstream-error`
-3. only continue once the user explicitly accepts a wrapper extension or another implementation step
+3. if the problem is runtime MCP exposure or hydration, use the deterministic wrapper CLI fallback
+4. only stop completely if both the MCP path and the wrapper CLI path fail
 
 Never silently switch transport.
+
+### Deterministic wrapper CLI fallback
+
+The only approved fallback transport is the bundled wrapper CLI that uses the same local wrapper and the same `.env`.
+
+Installed path:
+
+- `~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli`
+
+Use it only when:
+
+- `n8n_rest` is not surfaced as a callable tool in the current session
+- MCP discovery or hydration fails in runtime
+- the user still wants to continue through the wrapper path
+
+Required CLI sequence:
+
+1. `n8n-rest-cli check_connection`
+2. `n8n-rest-cli list_workflows` or `n8n-rest-cli get_workflow '{"id":"..."}'`
+3. continue with the corresponding wrapper operations through the CLI
+
+The CLI remains inside the approved wrapper path:
+
+- no `curl`
+- no browser
+- no direct HTTP requests
+- no native `n8n` MCP
+
+When you use the CLI fallback, say so explicitly in the response and list the exact wrapper commands used.
 
 ## Execution flow
 

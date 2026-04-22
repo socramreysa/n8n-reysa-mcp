@@ -10,6 +10,14 @@ This repo packages:
 
 It is designed for API-first `n8n` work from any project folder, without using the native `n8n` MCP transport.
 
+Primary path:
+
+- `~/.codex/config.toml` with `[mcp_servers.n8n_rest]`
+
+Fallback path:
+
+- `~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli`
+
 ## What it installs
 
 The installer writes only to your Codex home:
@@ -18,6 +26,7 @@ The installer writes only to your Codex home:
 - `~/.codex/local-tools/n8n-rest-mcp`
 - `~/.codex/config.toml` if the `n8n_rest` MCP block is missing
 - `~/.codex/local-tools/n8n-rest-mcp/.env`
+- `~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli`
 
 It does not modify your current project.
 
@@ -94,6 +103,30 @@ Use $n8n-ops and run check_connection against my n8n instance.
 
 If the wrapper can reach your instance, Codex should report the API base URL and a workflow count hint.
 
+## Deterministic fallback CLI
+
+If a fresh Codex session still does not expose `n8n_rest` as a callable MCP tool, use the bundled wrapper CLI instead of switching transport.
+
+Installed path:
+
+- `~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli`
+
+Common commands:
+
+```bash
+~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli list-tools
+~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli check_connection
+~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli get_workflow '{"id":"qpkRqOmYW0TFIM39"}'
+~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli update_workflow @/tmp/update-workflow.json
+```
+
+This stays inside the same wrapper path:
+
+- no `curl`
+- no browser fetches
+- no native `n8n` MCP
+- the same `.env` and wrapper implementation used by `n8n_rest`
+
 ## Optimal operation framework
 
 The `n8n-ops` skill includes an optimal operation framework (operational excellence checklist) that stays inside the `n8n_rest` tool path (no curl / no browser fetch).
@@ -122,6 +155,7 @@ The packaged `n8n_rest` wrapper exposes tools for:
 - if network resolution fails, the wrapper reports transport details such as `code`, `hostname`, and `syscall`
 - some `n8n` instances may require re-publishing workflows after API edits to ensure production webhooks stay registered
 - secrets live in the local `.env` file under `~/.codex/local-tools/n8n-rest-mcp/.env`, not in git
+- fresh Codex runtimes may still intermittently fail to expose a healthy local MCP tool namespace; see `docs/codex-runtime-mcp-bug.md`
 
 ## Repo Layout
 
@@ -129,6 +163,7 @@ The packaged `n8n_rest` wrapper exposes tools for:
 skill/n8n-ops/
 skill/n8n-ops/references/optimal_operation_framework.md
 local-tools/n8n-rest-mcp/
+local-tools/n8n-rest-mcp/bin/n8n-rest-cli
 install/install.sh
 README.md
 ```

@@ -21,8 +21,10 @@ The recommended installed layout is:
 
 - `~/.codex/local-tools/n8n-rest-mcp/.env`
 - `~/.codex/local-tools/n8n-rest-mcp/bin/start.sh`
+- `~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli`
 
 `bin/start.sh` loads `.env` before starting the stdio MCP server, so users do not need shell `export` statements for normal Codex use.
+`bin/n8n-rest-cli` loads the same `.env` and talks to the same wrapper directly, which makes it the deterministic fallback when a Codex session fails to expose `n8n_rest`.
 
 ## Env vars
 
@@ -39,6 +41,17 @@ Guardrails:
 ## Registered Codex servers
 
 - `n8n_rest`: local stdio MCP server backed by the n8n REST API
+
+## Deterministic fallback CLI
+
+When Codex fails to hydrate `n8n_rest` in-session, use:
+
+- `bin/n8n-rest-cli list-tools`
+- `bin/n8n-rest-cli check_connection`
+- `bin/n8n-rest-cli get_workflow '{"id":"qpkRqOmYW0TFIM39"}'`
+- `bin/n8n-rest-cli update_workflow @/tmp/update-workflow.json`
+
+The CLI prints JSON to stdout on success and normalized JSON errors to stderr on failure.
 
 ## Tool surface
 
