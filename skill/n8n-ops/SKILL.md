@@ -67,8 +67,6 @@ Use the bundled references first. They are the default working contract for this
   [references/execution_loop.md](references/execution_loop.md)
 - Optimal operation framework (operational excellence: safety, validation, evidence):
   [references/optimal_operation_framework.md](references/optimal_operation_framework.md)
-- Runtime health states, fallback interpretation, and the recommended Codex profile:
-  [references/runtime_health.md](references/runtime_health.md)
 - Production 404s, webhook registration caveats, and known drift risks:
   [references/known_issues.md](references/known_issues.md)
 - Canonical node patterns and anti-patterns for workflow design:
@@ -160,8 +158,6 @@ For any workflow review, edit, execution, or debugging task, this sequence is ma
 If the connection fails, surface the normalized error kind: `config`, `auth`, `not-found`, `rate-limit`, or `upstream-error`.
 Do not switch to another connection method because of a failed first call. Diagnose within `n8n_rest` first.
 
-For live `n8n` access, prefer a Codex session that allows networked execution. This repo installs a recommended Codex profile named `n8n_reysa_mcp` for that purpose.
-
 ## Review flow
 
 For workflow review:
@@ -231,13 +227,6 @@ If `n8n_rest` fails or lacks a capability:
 1. do not reach for `curl`, browser access, direct fetches, or native `n8n` MCP
 2. report whether the problem is:
    - missing capability in `n8n_rest`
-
-Treat the following state as degraded but still operational:
-
-- the installed local wrapper can execute `check_connection()` successfully
-- but the `n8n_rest` namespace is not surfaced as a normal callable tool in the active session
-
-In that case, classify it as a Codex MCP discovery or hydration issue, not as an `n8n` or REST transport failure.
    - `config`
    - `auth`
    - `upstream-error`

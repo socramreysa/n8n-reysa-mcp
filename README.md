@@ -60,30 +60,8 @@ It also:
 - installs a versioned plugin cache under `~/.codex/plugins/cache/<marketplace>/<plugin>/<version>`
 - preserves an existing plugin `.env`
 - defaults to leaving legacy config and legacy files untouched
-- installs or refreshes a Codex profile named `n8n_reysa_mcp` with network-enabled session defaults for live `n8n` work
 
 The wrapper `.env` remains local runtime configuration, but it now lives under the deployed plugin instead of `~/.codex/local-tools`.
-
-## Recommended Codex Profile
-
-This repo installs a dedicated Codex profile:
-
-- `n8n_reysa_mcp`
-
-Its purpose is to give live `n8n` sessions the expected execution policy without forcing a global default in `~/.codex/config.toml`.
-
-Current profile settings:
-
-- `sandbox_mode = "danger-full-access"`
-- `approval_policy = "on-request"`
-
-Example:
-
-```bash
-codex -p n8n_reysa_mcp
-```
-
-The plugin still provides runtime discovery. The skill is still the thing you invoke. The profile only controls the session policy used by Codex.
 
 ## Legacy Migration Modes
 
@@ -143,32 +121,6 @@ If the plugin runtime is healthy, Codex should discover the `n8n_rest` tools fro
 
 The skill remains the user-facing way to ask Codex to review, edit, test, or debug `n8n` workflows. The plugin is the bundle that makes the skill and the `n8n_rest` runtime available together.
 
-## Runtime Health States
-
-Use these states when evaluating whether the plugin-first installation is behaving correctly.
-
-### Healthy
-
-- the skill `n8n-reysa-mcp:n8n-ops` is available
-- the plugin is enabled
-- `n8n_rest` is surfaced as a callable tool in the session
-- `check_connection()` returns `ok: true`
-
-### Operational with fallback
-
-- the plugin is enabled
-- the installed wrapper runtime starts and answers `check_connection()` with `ok: true`
-- but the `n8n_rest` namespace is not surfaced as a normal callable tool in the active session
-
-Interpret this as a Codex MCP discovery or tool hydration issue, not as an `n8n` outage.
-
-### Broken
-
-- the plugin is not enabled, or
-- the installed launcher does not start, or
-- `tools/list` does not include `check_connection`, or
-- `check_connection()` fails with `config`, `auth`, or real upstream errors outside restricted sessions
-
 ## Optimal operation framework
 
 The `n8n-ops` skill includes an optimal operation framework (operational excellence checklist) that stays inside the `n8n_rest` tool path (no curl / no browser fetch).
@@ -210,10 +162,7 @@ Check:
 
 - `~/.agents/plugins/marketplace.json` points `n8n-reysa-mcp` at `~/plugins/n8n-reysa-mcp`
 - `~/.codex/config.toml` includes the plugin enablement block for your local marketplace
-- `~/.codex/config.toml` includes the profile block `[profiles.n8n_reysa_mcp]`
 - `~/plugins/n8n-reysa-mcp/.mcp.json` points to the deployed plugin launcher
-
-If the wrapper itself still returns `ok: true` but the namespace is not surfaced in the session, treat the installation as operational with fallback, not fully broken.
 
 ### Handshake still fails in new sessions
 
@@ -223,12 +172,6 @@ Check:
 - the plugin env file exists and has `N8N_BASE_URL` and `N8N_API_KEY`
 - `node --test ./local-tools/n8n-rest-mcp/test/index.test.mjs` passes in this repo
 - the runtime session is discovering `n8n_rest` via the plugin, not via an old config block
-
-If the session needs live `n8n` access, prefer launching Codex with:
-
-```bash
-codex -p n8n_reysa_mcp
-```
 
 ### I still need the legacy installation for a while
 
