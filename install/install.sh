@@ -140,7 +140,6 @@ deploy_plugin_bundle() {
   backup_env_if_present
   copy_repo_contents "$PLUGIN_DEST"
   chmod +x "$PLUGIN_WRAPPER_LAUNCHER"
-  chmod +x "$PLUGIN_WRAPPER_DIR/bin/n8n-rest-cli"
 
   if [ -n "$TMP_ENV_BACKUP" ] && [ -f "$TMP_ENV_BACKUP" ]; then
     cp "$TMP_ENV_BACKUP" "$PLUGIN_WRAPPER_ENV_FILE"
@@ -156,7 +155,6 @@ install_plugin_cache() {
   rm -rf "$PLUGIN_CACHE_DEST"
   copy_repo_contents "$PLUGIN_CACHE_DEST"
   chmod +x "$PLUGIN_CACHE_WRAPPER_LAUNCHER"
-  chmod +x "$PLUGIN_CACHE_WRAPPER_DIR/bin/n8n-rest-cli"
 
   if [ -f "$PLUGIN_WRAPPER_ENV_FILE" ]; then
     cp "$PLUGIN_WRAPPER_ENV_FILE" "$PLUGIN_CACHE_WRAPPER_ENV_FILE"
@@ -358,9 +356,6 @@ Runtime manifests:
 Plugin runtime env:
 - $PLUGIN_WRAPPER_ENV_FILE
 
-Deterministic fallback CLI:
-- $PLUGIN_WRAPPER_DIR/bin/n8n-rest-cli
-
 Legacy handling mode:
 - $MIGRATION_MODE_RESOLVED
 
@@ -368,5 +363,4 @@ Next steps:
 1. Edit $PLUGIN_WRAPPER_ENV_FILE with your n8n values if needed.
 2. Open a new Codex session, ideally with profile "$PROFILE_NAME" when you need live n8n access.
 3. Use the bundled n8n-ops skill and run check_connection.
-4. If the session still does not expose n8n_rest, use $PLUGIN_WRAPPER_DIR/bin/n8n-rest-cli as the deterministic fallback.
 EOF

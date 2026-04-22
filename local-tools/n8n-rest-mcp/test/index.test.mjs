@@ -6,7 +6,6 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 
 const lib = await import(new URL('../dist/index.js', import.meta.url))
-const cli = await import(new URL('../dist/n8n-rest-cli.js', import.meta.url))
 
 function mockHeaders(entries = {}) {
   return {
@@ -37,34 +36,6 @@ test('buildApiBaseUrl appends /api/v1 when only a host is provided', () => {
 test('buildWebhookBaseUrl falls back to N8N_BASE_URL and strips /api/v1', () => {
   const url = lib.buildWebhookBaseUrl({ N8N_BASE_URL: 'https://example.test/api/v1/' })
   assert.equal(url, 'https://example.test')
-})
-
-test('n8n-rest-cli lists bundled tool names without env', async () => {
-  const chunks = []
-  const exitCode = await cli.main(['list-tools'], {
-    stdout: { write: (chunk) => chunks.push(String(chunk)) },
-    stderr: { write: () => {} },
-  })
-
-  assert.equal(exitCode, 0)
-  const parsed = JSON.parse(chunks.join(''))
-  assert.ok(Array.isArray(parsed.tools))
-  assert.ok(parsed.tools.includes('check_connection'))
-  assert.ok(parsed.tools.includes('get_workflow'))
-})
-
-test('n8n-rest-cli parses inline JSON and @file arguments', async () => {
-  assert.deepEqual(cli.parseCliJsonArg(), {})
-  assert.deepEqual(cli.parseCliJsonArg('{"id":"wf_1"}'), { id: 'wf_1' })
-
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'n8n-rest-cli-'))
-  const jsonFile = path.join(tempDir, 'args.json')
-  try {
-    fs.writeFileSync(jsonFile, '{"id":"wf_file"}')
-    assert.deepEqual(cli.parseCliJsonArg(`@${jsonFile}`), { id: 'wf_file' })
-  } finally {
-    fs.rmSync(tempDir, { recursive: true, force: true })
-  }
 })
 
 test('buildApiBaseUrl rejects MCP endpoints', () => {

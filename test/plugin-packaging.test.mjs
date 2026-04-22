@@ -30,12 +30,6 @@ test('repo mcp manifest is a template that the installer materializes', () => {
   )
 })
 
-test('bundled wrapper includes deterministic fallback cli', () => {
-  const cliPath = path.join(ROOT, 'local-tools', 'n8n-rest-mcp', 'bin', 'n8n-rest-cli')
-  assert.equal(fs.existsSync(cliPath), true)
-  assert.match(fs.readFileSync(cliPath, 'utf8'), /dist\/n8n-rest-cli\.js/)
-})
-
 test('bundled skill prompt references the plugin-exposed runtime', () => {
   const skillPrompt = fs.readFileSync(
     path.join(ROOT, 'skill/n8n-ops/agents/openai.yaml'),
