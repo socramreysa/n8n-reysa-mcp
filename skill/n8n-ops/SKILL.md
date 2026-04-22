@@ -241,9 +241,43 @@ In that case, classify it as a Codex MCP discovery or hydration issue, not as an
    - `config`
    - `auth`
    - `upstream-error`
-3. only continue once the user explicitly accepts a wrapper extension or another implementation step
+3. if the runtime problem is specifically “tool missing / namespace not visible / handshake not exposed”, switch to the deterministic wrapper CLI instead of stopping
+4. only stop completely if both the MCP path and the deterministic wrapper CLI path fail
 
 Never silently switch transport.
+
+### Deterministic wrapper CLI fallback
+
+The only approved fallback transport is the bundled wrapper CLI that uses the same local wrapper and the same `.env`.
+
+Preferred installed path:
+
+- `~/plugins/n8n-reysa-mcp/local-tools/n8n-rest-mcp/bin/n8n-rest-cli`
+
+Legacy compatible path:
+
+- `~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli`
+
+Use it only when:
+
+- `n8n_rest` is not surfaced as a callable tool in the current session
+- MCP discovery or hydration fails in runtime
+- the user still wants to continue with the wrapper path
+
+Required CLI sequence:
+
+1. `n8n-rest-cli check_connection`
+2. `n8n-rest-cli list_workflows` or `n8n-rest-cli get_workflow '{"id":"..."}'`
+3. continue with the corresponding wrapper operations through the CLI
+
+The CLI remains inside the approved wrapper path:
+
+- no `curl`
+- no browser
+- no direct HTTP requests
+- no native `n8n` MCP
+
+When you use the CLI fallback, say so explicitly in the response and list the exact wrapper commands used.
 
 ## Execution flow
 

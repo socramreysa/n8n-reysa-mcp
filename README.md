@@ -162,6 +162,34 @@ If you only want to validate launcher startup and tool exposure without hitting 
 node ./test/plugin-runtime-smoke.mjs --skip-connection
 ```
 
+## Deterministic fallback CLI
+
+If a fresh Codex session sees the skill but still does not expose `n8n_rest` as a callable MCP tool, use the bundled wrapper CLI instead of stalling or dropping to `curl`.
+
+Installed path:
+
+- `~/plugins/n8n-reysa-mcp/local-tools/n8n-rest-mcp/bin/n8n-rest-cli`
+
+Common commands:
+
+```bash
+~/plugins/n8n-reysa-mcp/local-tools/n8n-rest-mcp/bin/n8n-rest-cli list-tools
+~/plugins/n8n-reysa-mcp/local-tools/n8n-rest-mcp/bin/n8n-rest-cli check_connection
+~/plugins/n8n-reysa-mcp/local-tools/n8n-rest-mcp/bin/n8n-rest-cli get_workflow '{"id":"qpkRqOmYW0TFIM39"}'
+~/plugins/n8n-reysa-mcp/local-tools/n8n-rest-mcp/bin/n8n-rest-cli update_workflow @/tmp/update-workflow.json
+```
+
+The same fallback also works for legacy installs at:
+
+- `~/.codex/local-tools/n8n-rest-mcp/bin/n8n-rest-cli`
+
+This keeps the transport deterministic:
+
+- no `curl`
+- no browser fetches
+- no native `n8n` MCP
+- the same wrapper code and `.env` used by the MCP server
+
 ## Runtime Health States
 
 Use these states when evaluating whether the plugin-first installation is behaving correctly.
@@ -233,6 +261,11 @@ Check:
 - `~/plugins/n8n-reysa-mcp/.mcp.json` points to the deployed plugin launcher
 
 If the wrapper itself still returns `ok: true` but the namespace is not surfaced in the session, treat the installation as operational with fallback, not fully broken.
+Use the fallback CLI and keep working through the wrapper:
+
+```bash
+~/plugins/n8n-reysa-mcp/local-tools/n8n-rest-mcp/bin/n8n-rest-cli check_connection
+```
 
 ### Handshake still fails in new sessions
 

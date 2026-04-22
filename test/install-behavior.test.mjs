@@ -89,7 +89,15 @@ test('clean install deploys plugin bundle and cache without requiring legacy sta
 
   assert.equal(fs.existsSync(path.join(pluginDest, '.codex-plugin', 'plugin.json')), true)
   assert.equal(fs.existsSync(path.join(pluginDest, 'skill', 'n8n-ops', 'SKILL.md')), true)
+  assert.equal(
+    fs.existsSync(path.join(pluginDest, 'local-tools', 'n8n-rest-mcp', 'bin', 'n8n-rest-cli')),
+    true
+  )
   assert.equal(fs.existsSync(path.join(cacheDest, '.mcp.json')), true)
+  assert.equal(
+    fs.existsSync(path.join(cacheDest, 'local-tools', 'n8n-rest-mcp', 'bin', 'n8n-rest-cli')),
+    true
+  )
 
   const config = readFile(path.join(codexHome, 'config.toml'))
   assert.match(config, new RegExp(`\\[plugins\\."${PLUGIN_NAME}@local"\\]`))
