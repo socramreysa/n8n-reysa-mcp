@@ -34,6 +34,7 @@ PY
 
 PLUGIN_NAME="${PLUGIN_NAME:-$(read_manifest_field name)}"
 PLUGIN_VERSION="${PLUGIN_VERSION:-$(read_manifest_field version)}"
+PROFILE_NAME="${PROFILE_NAME:-n8n_reysa_mcp}"
 PLUGIN_DEST="$PLUGIN_HOME/$PLUGIN_NAME"
 PLUGIN_WRAPPER_DIR="$PLUGIN_DEST/local-tools/n8n-rest-mcp"
 PLUGIN_WRAPPER_ENV_FILE="$PLUGIN_WRAPPER_DIR/.env"
@@ -275,7 +276,7 @@ resolve_migration_mode() {
 update_codex_config() {
   local migration_mode="$1"
   mkdir -p "$(dirname "$CONFIG_FILE")"
-  python3 - "$CONFIG_FILE" "$PLUGIN_NAME" "$MARKETPLACE_NAME" "$migration_mode" <<'PY'
+  python3 - "$CONFIG_FILE" "$PLUGIN_NAME" "$MARKETPLACE_NAME" "$migration_mode" "$PROFILE_NAME" <<'PY'
 import re
 import sys
 from pathlib import Path
@@ -284,9 +285,14 @@ config_path = Path(sys.argv[1])
 plugin_name = sys.argv[2]
 marketplace_name = sys.argv[3]
 migration_mode = sys.argv[4]
+profile_name = sys.argv[5]
 
 text = config_path.read_text() if config_path.exists() else ""
 legacy_pattern = re.compile(r'^\[mcp_servers\.n8n_rest\]\n(?:.*\n)*?(?=^\[|\Z)', re.MULTILINE)
+profile_pattern = re.compile(
+    rf'^\[profiles\.{re.escape(profile_name)}\]\n(?:.*\n)*?(?=^\[|\Z)',
+    re.MULTILINE,
+)
 
 if migration_mode in {"migrate-config", "full-migrate"}:
     text = re.sub(legacy_pattern, "", text).strip()
@@ -296,6 +302,19 @@ if plugin_block not in text:
     if text:
         text += "\n\n"
     text += plugin_block
+
+profile_block = (
+    f'[profiles.{profile_name}]\n'
+    'sandbox_mode = "danger-full-access"\n'
+    'approval_policy = "on-request"'
+)
+
+if profile_pattern.search(text):
+    text = re.sub(profile_pattern, profile_block + "\n", text).strip()
+else:
+    if text:
+        text += "\n\n"
+    text += profile_block
 
 if text:
     text += "\n"
@@ -342,6 +361,6 @@ Legacy handling mode:
 
 Next steps:
 1. Edit $PLUGIN_WRAPPER_ENV_FILE with your n8n values if needed.
-2. Open a new Codex session.
+2. Open a new Codex session, ideally with profile "$PROFILE_NAME" when you need live n8n access.
 3. Use the bundled n8n-ops skill and run check_connection.
 EOF

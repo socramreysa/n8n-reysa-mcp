@@ -11,6 +11,7 @@ const PLUGIN_MANIFEST = JSON.parse(
 )
 const PLUGIN_NAME = PLUGIN_MANIFEST.name
 const PLUGIN_VERSION = PLUGIN_MANIFEST.version
+const PROFILE_NAME = 'n8n_reysa_mcp'
 
 function makeTempEnv() {
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'n8n-reysa-install-'))
@@ -92,6 +93,9 @@ test('clean install deploys plugin bundle and cache without requiring legacy sta
 
   const config = readFile(path.join(codexHome, 'config.toml'))
   assert.match(config, new RegExp(`\\[plugins\\."${PLUGIN_NAME}@local"\\]`))
+  assert.match(config, new RegExp(`\\[profiles\\.${PROFILE_NAME}\\]`))
+  assert.match(config, /sandbox_mode = "danger-full-access"/)
+  assert.match(config, /approval_policy = "on-request"/)
   assert.doesNotMatch(config, /\[mcp_servers\.n8n_rest\]/)
 })
 
@@ -143,6 +147,7 @@ test('legacy state defaults to keep mode when no interactive tty is available', 
   const config = readFile(configPath)
   assert.match(config, /\[mcp_servers\.n8n_rest\]/)
   assert.match(config, new RegExp(`\\[plugins\\."${PLUGIN_NAME}@local"\\]`))
+  assert.match(config, new RegExp(`\\[profiles\\.${PROFILE_NAME}\\]`))
   assert.equal(fs.existsSync(path.join(base.codexHome, 'skills', 'n8n-ops')), true)
   assert.equal(fs.existsSync(path.join(base.codexHome, 'local-tools', 'n8n-rest-mcp')), true)
 })
@@ -170,6 +175,7 @@ test('migrate-config removes only the legacy config block', () => {
   const config = readFile(path.join(base.codexHome, 'config.toml'))
   assert.doesNotMatch(config, /\[mcp_servers\.n8n_rest\]/)
   assert.match(config, new RegExp(`\\[plugins\\."${PLUGIN_NAME}@local"\\]`))
+  assert.match(config, new RegExp(`\\[profiles\\.${PROFILE_NAME}\\]`))
   assert.equal(fs.existsSync(path.join(base.codexHome, 'skills', 'n8n-ops')), true)
   assert.equal(fs.existsSync(path.join(base.codexHome, 'local-tools', 'n8n-rest-mcp')), true)
 })
@@ -196,6 +202,7 @@ test('full-migrate removes legacy config and legacy assets', () => {
 
   const config = readFile(path.join(base.codexHome, 'config.toml'))
   assert.doesNotMatch(config, /\[mcp_servers\.n8n_rest\]/)
+  assert.match(config, new RegExp(`\\[profiles\\.${PROFILE_NAME}\\]`))
   assert.equal(fs.existsSync(path.join(base.codexHome, 'skills', 'n8n-ops')), false)
   assert.equal(fs.existsSync(path.join(base.codexHome, 'local-tools', 'n8n-rest-mcp')), false)
 })
