@@ -61,19 +61,3 @@ codex -p n8n_reysa_mcp
 ```
 
 This profile is a session recommendation. It does not replace the plugin or the skill.
-
-## Repo smoke test
-
-When you need to separate plugin runtime health from Codex MCP discovery in a chat session, run the repo smoke test:
-
-```bash
-node ./test/plugin-runtime-smoke.mjs
-```
-
-This validates:
-
-- launcher startup
-- MCP initialize
-- `tools/list`
-- availability of `check_connection`
-- optional live `check_connection()` execution

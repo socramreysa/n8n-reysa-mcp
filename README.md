@@ -143,25 +143,6 @@ If the plugin runtime is healthy, Codex should discover the `n8n_rest` tools fro
 
 The skill remains the user-facing way to ask Codex to review, edit, test, or debug `n8n` workflows. The plugin is the bundle that makes the skill and the `n8n_rest` runtime available together.
 
-For a direct runtime smoke test outside the chat tool catalog, run:
-
-```bash
-node ./test/plugin-runtime-smoke.mjs
-```
-
-What it validates:
-
-- the installed plugin launcher starts
-- MCP `initialize` succeeds
-- `tools/list` includes `check_connection`
-- `check_connection()` can run through the installed wrapper
-
-If you only want to validate launcher startup and tool exposure without hitting live `n8n`, run:
-
-```bash
-node ./test/plugin-runtime-smoke.mjs --skip-connection
-```
-
 ## Runtime Health States
 
 Use these states when evaluating whether the plugin-first installation is behaving correctly.
