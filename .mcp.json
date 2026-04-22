@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "n8n_rest": {
+      "command": "__PLUGIN_ROOT__/local-tools/n8n-rest-mcp/bin/start.sh"
+    }
+  }
+}

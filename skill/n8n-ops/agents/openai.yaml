@@ -1,13 +1,7 @@
 interface:
   display_name: "n8n API Workflow Ops"
   short_description: "Inspect and build idiomatic n8n workflows"
-  default_prompt: "Use $n8n-ops and only the local n8n_rest MCP tools. Start with check_connection, do not use curl or external HTTP paths, and prefer native n8n nodes over Code."
-
-dependencies:
-  tools:
-    - type: "mcp"
-      value: "n8n_rest"
-      description: "Global local MCP wrapper over the n8n public REST API"
+  default_prompt: "Use $n8n-ops with the plugin-exposed local n8n_rest only. Start with check_connection. No curl, direct HTTP, or legacy config.toml MCP paths."
 
 policy:
   allow_implicit_invocation: true
